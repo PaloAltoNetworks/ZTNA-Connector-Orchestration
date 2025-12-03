@@ -1,0 +1,13 @@
+General:
+  host1_ip: 54.149.37.85
+  host1_name: locator.cgnx.net
+  model: ion 200v
+License:
+  key: << hidden >>
+  secret: << hidden >>
+1:
+  role: PublicWAN
+  type: DHCP
+2:
+  role: PrivateWAN
+  type: DHCP

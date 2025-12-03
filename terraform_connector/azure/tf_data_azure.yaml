@@ -1,0 +1,24 @@
+instance_details:
+  name: azr-tf-2-arm-conn-1
+  image_name: azr-tf-2-arm-conn-1-image
+  vhd_image: << populated from suitemap >>
+  location: << populated from suitemap >>
+  rg_name: azr-ztna-auto-2-arm-rg
+  os_disk_name: azr-ztna-auto-conn-1_os_disk
+  boot_diag_storage_account_name: azr2armztnaauto
+vnet:
+  vnet_name: << populated from suitemap >>
+  rg_name: << populated from suitemap >>
+  port1_vni_name: azr-tf-conn-1-port1-vni
+  port2_vni_name: azr-tf-conn-1-port2-vni
+  port2_static_ip: "10.4.2.100"
+  external_subnet: << populated from suitemap >>
+  internal_subnet: << populated from suitemap >>
+  vnet_addr_prefix:  ["10.4.0.0/16"]
+  external_cidr: "10.4.0.0/24"
+autoscale:
+  min_size: 1
+  max_size: 2
+  scalein_bw_mbps: 100
+  scaleout_bw_mbps: 200
+  scaleset_name: "ss-1"

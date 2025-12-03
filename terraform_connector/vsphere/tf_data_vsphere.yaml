@@ -1,0 +1,25 @@
+connector:
+  esxi_host: 10.6.208.14
+  host1_ip: 44.239.132.39
+  host1_name: locator.cgnx.net
+  host2_ip: 44.239.132.39
+  host2_name: vmfg-auto1.hood.cgnx.net
+  host3_ip: 44.239.132.39
+  host3_name: controller-auto1.hood.cgnx.net
+  name: connector-2243202864
+  port1_dns1: 10.55.66.10
+  port1_dns2: 10.55.66.11
+  port1_gateway: 192.168.10.1
+  port1_ip: 192.168.10.177
+  port1_subnet: 24
+  secret: 90b76c8770f81a56d6b39d3e3d8f7516ee0d91f4
+  token: 1717195350608007996-957fcbc0-9066-46b6-b1db-79225d024548
+vsphere:
+  datacenter: Rakshit-DC
+  datastore: datastore95
+  network: darshit_tb2--pa1-unix1
+  ova_path: /home/test/pa_conn_certs/200v-1-nic-6.2.5-ztna-connector-b1-vmware.ova
+  password: Panw@1234
+  resource_pool: ztna-conn
+  server: 10.2.232.9
+  user: administrator@vcenter.local

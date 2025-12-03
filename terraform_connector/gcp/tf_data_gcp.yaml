@@ -1,0 +1,23 @@
+instance_details:
+  cloud_image: https://www.googleapis.com/compute/v1/projects/pa-sase-insights-qa-01/global/images/v200a7
+  machine_type: n2-standard-4
+  name: darshit-conn-2
+  network_tags:
+  - us-central1
+provider:
+  contact_info: samanjunath
+  name: gcp
+  project: pa-sase-insights-qa-01
+  region: us-central1
+  service_account_email: auto-terraform-2@pa-sase-insights-qa-01.iam.gserviceaccount.com
+  service_account_key: /home/test/pa_conn_certs/tf_gcp_credentials.json
+  service_account_scopes:
+  - https://www.googleapis.com/auth/cloud-platform
+  zone: us-central1-a
+vpcs:
+  external_name: external
+  external_subnet: external-ztna-via-nat
+  internal_cidr: 172.24.0.0/16
+  internal_name: internal
+  internal_subnet: dataflow
+

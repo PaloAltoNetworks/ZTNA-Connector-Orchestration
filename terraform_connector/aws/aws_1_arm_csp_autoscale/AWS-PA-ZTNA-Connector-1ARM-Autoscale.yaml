@@ -1,0 +1,278 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: 'Prisma Access ZTNA Connector Deployment, use this template for 1-ARM deployments
+  only. Version: 4.0 Date: 02-28-2023 Contact:  https://www.paloaltonetworks.com/company/contact-support '
+Parameters:
+  MyASGMinSize:
+    Type: Number
+    Default: 1
+    MinValue: 1
+    MaxValue: 10
+    Description: The minimum number of ZTNA Connectors in the Auto Scaling Group. 1..10.
+  MyASGMaxSize:
+    Type: Number
+    Default: 2
+    MinValue: 1
+    MaxValue: 10
+    Description: The maximum number of ZTNA Connectors in the Auto Scaling Group. Min+1..10.
+  MyASGNWBWPercent:
+    Type: String
+    Default: 70
+    AllowedValues:
+      - 10
+      - 20
+      - 30
+      - 40
+      - 50
+      - 60
+      - 70
+      - 80
+      - 90
+    Description: Enter the network bandwidth threshold for Auto Scaling Group scale out.
+  IONKey:
+    Description: ZTNA Connector Key
+    Type: String
+  IONSecret:
+    Description: ZTNA Connector Secret
+    Type: String
+    NoEcho: true
+  MyVPC:
+    Description: VPC to operate in
+    Type: AWS::EC2::VPC::Id
+  PrivateSubnet:
+    Description: Subnet for Private port
+    Type: AWS::EC2::Subnet::Id
+  CgnxHostName:
+    Description: Cgnx controller hostname
+    Type: String
+  CgnxHostIp:
+    Description: Cgnx controller ip
+    Type: String
+
+Mappings:
+  RegionMap:
+    us-east-1:
+      ION: ami-077db6d5009ba220b
+    us-east-2:
+      ION: ami-0349586e55a05fac6
+    us-west-1:
+      ION: ami-0e266960e17abc25a
+    us-west-2:
+      ION: ami-025a1728f759dc3aa
+    ca-central-1:
+      ION: ami-04b84003343672e17
+    eu-central-1:
+      ION: ami-0c127a50d6d61073e
+    eu-central-2:
+      ION: ami-0fe0dfcdb4527b03f
+    eu-west-1:
+      ION: ami-042d217dc037498d6
+    eu-west-2:
+      ION: ami-03bf7968353e0e427
+    eu-west-3:
+      ION: ami-034b3d1b405b36745    
+    eu-north-1:
+      ION: ami-093e4a621fa542170
+    eu-south-1:
+      ION: ami-047c7a11d9447e0e1
+    eu-south-2:
+      ION: ami-0c2b4886e243cef90
+    ap-southeast-1:
+      ION: ami-0c55a1df2b4bca507  
+    ap-southeast-2:
+      ION: ami-0ca112173f98e7bb4
+    ap-southeast-3:
+      ION: ami-0a07005ef68362188
+    ap-southeast-4:
+      ION: ami-01fd12e09f305e5a1
+    ap-south-1:
+      ION: ami-00d5789477037aee9
+    ap-south-2:
+      ION: ami-06b5e126792c3cb8c
+    ap-northeast-1:
+      ION: ami-0402e739161973f8b
+    ap-northeast-2:
+      ION: ami-08e77d0a84f6da357
+    ap-northeast-3:
+      ION: ami-0ba593010ce3f5599
+    ap-east-1:
+      ION: ami-0c0bdb98e6f0c8657  
+    sa-east-1:
+      ION: ami-002cb5e1212e7b977
+    me-central-1:
+      ION: ami-0b38199dff8934504
+    me-south-1:
+      ION: ami-0df830547ddf6a6f0
+    af-south-1:
+      ION: ami-071949687cf15048f
+  InstanceMap:
+    ion200v:
+      instanceType: "m5.xlarge"
+  ModelMap:
+    ion200v:
+      model: "ion 200v"     
+  BandwidthMap:
+    "10":
+      BytesIn5min: 4026531840
+    "20":
+      BytesIn5min: 8053063680
+    "30":
+      BytesIn5min: 12079595520
+    "40":
+      BytesIn5min: 16106127360
+    "50":
+      BytesIn5min: 20132659200
+    "60":
+      BytesIn5min: 24159191040
+    "70":
+      BytesIn5min: 28185722880
+    "80":
+      BytesIn5min: 32212254720
+    "90":
+      BytesIn5min: 36238786560
+    "100":
+      BytesIn5min: 40265318400
+      
+Resources:
+
+  MyEC2LaunchTemplate:
+    Type: AWS::EC2::LaunchTemplate
+    Properties: 
+      LaunchTemplateName: !Sub ${AWS::StackName}-launch-template
+      LaunchTemplateData:
+        # There is an availability zone in the LaunchTemplateData Placement AvailabilityZone
+        # based on ION model number entered
+        InstanceType: !FindInMap [InstanceMap, "ion200v", instanceType]
+        # AMI based on region map
+        ImageId: !FindInMap [RegionMap, !Ref 'AWS::Region', ION]
+        # PA ZTNA Connector requires 1 interface for a combined Internet and data center LAN port.
+        NetworkInterfaces:
+          -
+            Description: Single interface - 1arm
+            SubnetId: !Ref 'PrivateSubnet'
+            DeviceIndex: 0
+            Groups:
+            - !Ref 'ZTNASG'
+        
+        BlockDeviceMappings: 
+        - DeviceName: "/dev/sda1"
+          Ebs: 
+            VolumeType: gp3
+            VolumeSize: 100
+            DeleteOnTermination: true
+            Encrypted: true
+
+        UserData:
+          Fn::Base64:
+            Fn::Sub:
+              - |
+                General:
+                  model: ${LocalModelMap}
+                  host1_name: ${CgnxHostName}
+                  host1_ip:  ${CgnxHostIp}
+                
+                License:
+                  key: ${IONKey}
+                  secret: ${IONSecret}
+
+                1:
+                  role: PublicWAN
+                  type: DHCP
+
+              - {
+                LocalModelMap:  !FindInMap [ModelMap, "ion200v", model]
+                }
+
+  ZTNASG:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupName: !Sub ${AWS::StackName}-security-group
+      GroupDescription: ZTNA Connector Allow Egress SG
+      SecurityGroupEgress:
+      - IpProtocol: -1
+        CidrIp: 0.0.0.0/0
+      VpcId: !Ref 'MyVPC'
+
+  MyASG:
+    Type: AWS::AutoScaling::AutoScalingGroup
+    Properties:
+      AutoScalingGroupName: !Sub ${AWS::StackName}-autoscaling-group
+      LaunchTemplate:
+        LaunchTemplateId: !Ref MyEC2LaunchTemplate
+        Version: !GetAtt MyEC2LaunchTemplate.LatestVersionNumber
+      MinSize: !Ref MyASGMinSize
+      MaxSize: !Ref MyASGMaxSize
+      DefaultInstanceWarmup: 2400
+      HealthCheckGracePeriod: 900
+      LifecycleHookSpecificationList:
+        - DefaultResult: "ABANDON" # Valid AlllowedValue
+          LifecycleHookName: "terminating-hook"
+          HeartbeatTimeout: 900
+          LifecycleTransition: "autoscaling:EC2_INSTANCE_TERMINATING" # Valid AllowedValue
+      VPCZoneIdentifier: [ !Ref 'PrivateSubnet' ]
+      Tags:
+        -
+          Key: Name
+          Value: !Sub ${AWS::StackName}-asg-vm
+          PropagateAtLaunch: true
+
+  MyNetworkBandwidthPolicy:
+    Type: AWS::AutoScaling::ScalingPolicy
+    Properties:
+      AutoScalingGroupName: !Ref MyASG
+      PolicyName: !Sub ${AWS::StackName}-scaling-policy
+      PolicyType: TargetTrackingScaling
+      TargetTrackingConfiguration:
+        PredefinedMetricSpecification:
+          PredefinedMetricType: ASGAverageNetworkIn
+        TargetValue: !FindInMap [BandwidthMap, !Ref MyASGNWBWPercent, BytesIn5min]
+
+Metadata:
+  AWS::CloudFormation::Interface:
+    ParameterGroups:
+    - Label:
+        default: Required Network Configuration
+      Parameters:
+      - MyVPC
+      - PrivateSubnet
+    - Label:
+        default: Required Auto Scaling Group Configuration
+      Parameters:
+      - MyASGMinSize
+      - MyASGMaxSize
+      - MyASGNWBWPercent
+    - Label:
+        default: Required ZTNA Connector License
+      Parameters:
+      - IONKey
+      - IONSecret
+    - Label:
+        default: Optional Network Configuration
+      Parameters:
+      - CgnxHostName
+      - CgnxHostIp
+    ParameterLabels:
+      MyVPC:
+        default: Which VPC should ZTNA Connector be deployed to?
+      PrivateSubnet:
+        default: Specify the subnet for the single port
+      MyASGMinSize:
+        default: Minimum ZTNA Connectors
+      MyASGMaxSize:
+        default: Maximum ZTNA Connectors
+      MyASGNWBWPercent:
+        default: Percentage of Network Bandwidth for Scale Out
+      CgnxHostName:
+        default: Hostname of cgnx controller
+      CgnxHostIp:
+        default: Ip of cgnx controller
+      IONKey:
+        default: Provide the ZTNA Connector License Key
+      IONSecret: 
+        default: Provide the ZTNA Connector License Secret
+Outputs:
+  InstanceId:
+    Description: InstanceId of the newly created AutoScalingGroup instance
+    Value: !Ref 'MyASG'
+  IONModel:
+    Description: ION model selected
+    Value: !FindInMap [ModelMap, "ion200v", model]
