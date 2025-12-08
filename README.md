@@ -42,19 +42,23 @@ Modify the variable files to match your environment. Open `variables.tf` (or `te
 Initialize the working directory. This downloads the necessary providers and prepares the environment.
 ```bash
 terraform init
+```
 
 ### 3. Plan the Deployment
 Generate a deployment plan. This shows exactly what cloud resources will be created.
 ```bash
 terraform plan
+```
 
 ### 4. Apply Changes
 Attempt to deploy the resources to the cloud.
 ```bash
 terraform apply
+```
 
 ## Cleanup
 To remove the resources created by this project (destroy the infrastructure), run the following command in the same directory:
 
 ```bash
 terraform destroy
+```
