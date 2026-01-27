@@ -1,0 +1,112 @@
+# Example Terraform Variables Configuration for vSphere ZTNA Connector
+# Copy this file to terraform.tfvars and update with your values
+
+############################
+# Deployment Selection
+############################
+number_of_nics = "1" # "1" or "2"
+
+############################
+# vSphere Infrastructure
+############################
+datacenter = "MyDatacenter"
+cluster    = "MyCluster" # Optional if using resource_pool
+# resource_pool = "MyResourcePool" # Optional
+datastore = "datastore1"
+folder    = "/VMs/ZTNA" # Optional VM folder path
+
+############################
+# OVA/OVF File Paths
+############################
+# Use local paths (recommended)
+ovf_1nic_local_path = "./200v-1-nic.ova"
+ovf_2nic_local_path = "./200v-2-nic.ova"
+
+# OR use remote URLs
+# ovf_1nic_remote_url = "https://example.com/path/to/200v-1-nic.ova"
+# ovf_2nic_remote_url = "https://example.com/path/to/200v-2-nic.ova"
+
+# Allow unverified SSL for OVF deployment (not recommended for production)
+# allow_unverified_ssl = false
+
+############################
+# VM Configuration
+############################
+vm_name              = "ztna-connector-vm"
+num_cpus             = 4
+num_cores_per_socket = 4
+memory_mb            = 8192
+disk_size_gb         = 40
+disk_thin_provisioned = true
+guest_id             = "ubuntu64Guest"
+firmware             = "bios" # or "efi"
+
+############################
+# Network Configuration
+############################
+port1_network = "VM Network" # Port group name for Port1
+
+# For 2-NIC deployments only:
+# port2_network = "LAN Network" # Port group name for Port2
+
+# Network adapter types
+port1_adapter_type = "vmxnet3"
+# port2_adapter_type = "vmxnet3"
+
+############################
+# Port 1 Network Settings
+############################
+# DHCP configuration (default)
+port1_type = "DHCP"
+
+# OR Static IP configuration
+# port1_type    = "Static"
+# port1_ip      = "192.168.1.100"
+# port1_subnet  = 24 # CIDR notation
+# port1_gateway = "192.168.1.1"
+# port1_dns1    = "8.8.8.8"
+# port1_dns2    = "8.8.4.4"
+
+############################
+# Port 2 Network Settings (2-NIC only)
+############################
+# DHCP configuration (default)
+# port2_type = "DHCP"
+
+# OR Static IP configuration
+# port2_type    = "Static"
+# port2_ip      = "10.0.1.100"
+# port2_subnet  = 24
+# port2_gateway = "10.0.1.1"
+# port2_dns1    = "10.0.1.2"
+# port2_dns2    = "10.0.1.3"
+
+############################
+# ZTNA License (REQUIRED)
+############################
+license_key    = "your-ztna-license-key-here"
+license_secret = "your-ztna-license-secret-here"
+
+############################
+# Advanced Configuration (Optional)
+############################
+# Static host entries for custom DNS resolution
+# host1_name = "controller.cgnx.net"
+# host1_ip   = "0.0.0.0" # 0.0.0.0 = not configured
+# host2_name = "vmfg.cgnx.net"
+# host2_ip   = "0.0.0.0"
+# host3_name = "locator.cgnx.net"
+# host3_ip   = "0.0.0.0"
+
+############################
+# Tags and Metadata
+############################
+tags = ["ztna-connector", "production"]
+
+# Custom attributes (key-value pairs)
+# custom_attributes = {
+#   "Environment" = "Production"
+#   "Owner"       = "Security-Team"
+# }
+
+annotation = "ZTNA Connector ION 200v - Managed by Terraform"

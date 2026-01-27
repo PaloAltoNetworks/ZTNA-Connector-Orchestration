@@ -1,0 +1,7 @@
+project_id         = "my-gcp-project"
+region             = "us-central1"
+zone               = "us-central1-a"
+vm_name            = "my-ztna-connector"
+vm_internet_subnet = "nat-gateway-to-internet"
+vm_license_key     = "<LICENSE-KEY>"
+vm_license_secret  = "<LICENSE-SECRET>"

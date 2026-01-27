@@ -1,0 +1,75 @@
+# Example Terraform Variables Configuration
+# Copy this file to terraform.tfvars and update with your values
+
+############################
+# Resource Group & Location
+############################
+resource_group_name = "ztna-connector-rg"
+location            = "eastus" # Leave empty to use resource group location
+
+############################
+# VM Configuration
+############################
+vm_name        = "ztna-connector-vm"
+vm_size        = "Standard_D4s_v3"
+admin_username = "adminuser"
+admin_password = "CHANGE-ME-SecurePassword123!" # Must meet Azure password requirements
+
+############################
+# Network Configuration
+############################
+virtual_network_name     = "my-vnet"
+vnet_new_or_existing     = "existing" # "new" or "existing"
+subnet1_name             = "Internet"
+number_of_nics           = "1" # "1" or "2"
+
+# Only required if using existing VNet in a different resource group
+# virtual_network_existing_rg_name = "network-rg"
+
+# Only required if creating new VNet
+# virtual_network_address_prefixes = ["10.5.0.0/16"]
+# subnet1_prefix                   = "10.5.1.0/24"
+
+# Only required for 2-NIC deployments
+# subnet2_name             = "LAN"
+# subnet2_prefix           = "10.5.2.0/24" # Only if creating new VNet
+# dc_lan_port_private_ip   = "10.5.2.44/24"
+# dc_lan_port_gateway      = "10.5.2.1"
+# dc_lan_port_dns          = "8.8.8.8"
+
+############################
+# Availability Configuration
+############################
+# Choose either availability_zone OR availability_set_name, not both
+availability_zone = "None" # "1", "2", "3", or "None"
+
+# availability_set_name                        = "None" # Set to availability set name or "None"
+# availability_set_platform_fault_domain_count = 2
+# availability_set_platform_update_domain_count = 5
+
+############################
+# Image Configuration
+############################
+use_marketplace_image = true
+# marketplace_version   = "latest"
+
+# Only required if using custom image
+# use_marketplace_image = false
+# custom_image_id       = "/subscriptions/xxxx/resourceGroups/xxxx/providers/Microsoft.Compute/images/xxxx"
+
+############################
+# ZTNA License (REQUIRED)
+############################
+vm_license_key    = "your-ztna-license-key-here"
+vm_license_secret = "your-ztna-license-secret-here"
+
+############################
+# Additional Configuration
+############################
+enable_bootstrap = true
+
+tags = {
+  "paloaltonetworks-ztna" = "ztna-connector-template"
+  "Environment"           = "Production"
+  "ManagedBy"             = "Terraform"
+}

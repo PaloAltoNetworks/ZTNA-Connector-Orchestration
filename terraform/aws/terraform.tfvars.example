@@ -1,0 +1,95 @@
+# Example Terraform Variables Configuration for AWS ZTNA Connector
+# Copy this file to terraform.tfvars and update with your values
+
+############################
+# AWS Region
+############################
+region = "us-east-1" # Leave empty to use default AWS region from your profile
+
+############################
+# VPC and Subnet Configuration
+############################
+vpc_id           = "vpc-0123456789abcdef0"   # Your VPC ID
+public_subnet_id = "subnet-0123456789abcdef0" # Subnet for NIC1
+
+# Only required for 2-NIC deployments
+# private_subnet_id = "subnet-0fedcba9876543210" # Subnet for NIC2
+
+############################
+# Instance Configuration
+############################
+instance_name = "ztna-connector-vm"
+instance_type = "m5.xlarge" # ION 200v recommended size
+number_of_nics = "1"        # "1" or "2"
+
+# Optional: Specify availability zone
+# availability_zone = "us-east-1a"
+
+# Optional: SSH key pair for instance access
+# key_name = "my-ec2-keypair"
+
+############################
+# Network IP Configuration
+############################
+# Use 0.0.0.0 for DHCP, or specify a static IP from the subnet
+public_nic_private_ip = "0.0.0.0" # DHCP by default
+
+# Only for 2-NIC deployments
+# private_nic_private_ip = "0.0.0.0" # DHCP by default
+# private_nic_private_ip = "10.0.2.50" # Or specify static IP
+
+############################
+# AMI Configuration
+############################
+use_custom_ami = false # Set to true to use custom AMI
+
+# Only if use_custom_ami = true
+# custom_ami_id = "ami-0123456789abcdef0"
+
+# Regional AMI map is defined in variables.tf
+# Update variables.tf if you need to modify regional AMI mappings
+
+############################
+# Security Group Configuration
+############################
+create_security_group = true
+security_group_name   = "ztna-connector-sg"
+
+# Optional: Allow ingress from specific CIDR blocks
+# Empty list means egress-only (default)
+allowed_ingress_cidrs = []
+
+# Example: Allow ingress from internal networks
+# allowed_ingress_cidrs = [
+#   "10.0.0.0/8",
+#   "172.16.0.0/12"
+# ]
+
+# Use existing security group instead of creating new one
+# create_security_group = false
+# security_group_id     = "sg-0123456789abcdef0"
+
+############################
+# ZTNA License (REQUIRED)
+############################
+vm_license_key    = "your-ztna-license-key-here"
+vm_license_secret = "your-ztna-license-secret-here"
+
+############################
+# EBS Volume Configuration
+############################
+root_volume_size                  = 30      # GB
+root_volume_type                  = "gp3"   # gp2, gp3, io1, io2
+root_volume_delete_on_termination = true
+
+############################
+# Additional Configuration
+############################
+enable_bootstrap = true
+
+tags = {
+  "paloaltonetworks-ztna" = "ztna-connector-template"
+  "Environment"           = "Production"
+  "ManagedBy"             = "Terraform"
+  "Owner"                 = "Security-Team"
+}

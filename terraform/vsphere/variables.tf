@@ -1,0 +1,322 @@
+############################
+#  Deployment Selection    #
+############################
+variable "number_of_nics" {
+  description = "The number of network interfaces (1 or 2)"
+  type        = string
+  default     = "1"
+  validation {
+    condition     = contains(["1", "2"], var.number_of_nics)
+    error_message = "The number_of_nics variable must be either '1' or '2'."
+  }
+}
+
+############################
+#  vSphere Infrastructure  #
+############################
+variable "datacenter" {
+  description = "vSphere datacenter name"
+  type        = string
+}
+
+variable "cluster" {
+  description = "vSphere cluster name (optional if using resource_pool)"
+  type        = string
+  default     = ""
+}
+
+variable "resource_pool" {
+  description = "vSphere resource pool name (optional)"
+  type        = string
+  default     = ""
+}
+
+variable "datastore" {
+  description = "vSphere datastore name for VM storage"
+  type        = string
+}
+
+variable "folder" {
+  description = "vSphere folder path for the VM (optional)"
+  type        = string
+  default     = ""
+}
+
+############################
+#  OVA/OVF Paths           #
+############################
+variable "ovf_1nic_local_path" {
+  description = "Local path to the 1-NIC OVA file"
+  type        = string
+  default     = "./200v-1-nic.ova"
+}
+
+variable "ovf_2nic_local_path" {
+  description = "Local path to the 2-NIC OVA file"
+  type        = string
+  default     = "./200v-2-nic.ova"
+}
+
+variable "ovf_1nic_remote_url" {
+  description = "Remote URL to the 1-NIC OVA file (alternative to local_path)"
+  type        = string
+  default     = ""
+}
+
+variable "ovf_2nic_remote_url" {
+  description = "Remote URL to the 2-NIC OVA file (alternative to local_path)"
+  type        = string
+  default     = ""
+}
+
+variable "allow_unverified_ssl" {
+  description = "Allow unverified SSL certificates for OVF deployment"
+  type        = bool
+  default     = false
+}
+
+############################
+#  VM Configuration        #
+############################
+variable "vm_name" {
+  description = "Name of the ZTNA Connector virtual machine"
+  type        = string
+  default     = "ztna-connector-vm"
+}
+
+variable "num_cpus" {
+  description = "Number of vCPUs"
+  type        = number
+  default     = 4
+}
+
+variable "num_cores_per_socket" {
+  description = "Number of cores per CPU socket"
+  type        = number
+  default     = 4
+}
+
+variable "memory_mb" {
+  description = "Memory in MB"
+  type        = number
+  default     = 8192
+}
+
+variable "disk_size_gb" {
+  description = "Disk size in GB"
+  type        = number
+  default     = 40
+}
+
+variable "disk_thin_provisioned" {
+  description = "Use thin provisioning for disk"
+  type        = bool
+  default     = true
+}
+
+variable "guest_id" {
+  description = "Guest OS identifier"
+  type        = string
+  default     = "ubuntu64Guest"
+}
+
+variable "firmware" {
+  description = "Firmware type (bios or efi)"
+  type        = string
+  default     = "bios"
+}
+
+############################
+#  Network Configuration   #
+############################
+variable "port1_network" {
+  description = "Port group/network name for Port1 (PublicWAN)"
+  type        = string
+}
+
+variable "port2_network" {
+  description = "Port group/network name for Port2 (LAN) - only for 2-NIC deployments"
+  type        = string
+  default     = ""
+}
+
+variable "port1_adapter_type" {
+  description = "Network adapter type for Port1"
+  type        = string
+  default     = "vmxnet3"
+}
+
+variable "port2_adapter_type" {
+  description = "Network adapter type for Port2"
+  type        = string
+  default     = "vmxnet3"
+}
+
+############################
+#  Port 1 Configuration    #
+############################
+variable "port1_type" {
+  description = "Port1 configuration type (DHCP or Static)"
+  type        = string
+  default     = "DHCP"
+  validation {
+    condition     = contains(["DHCP", "Static"], var.port1_type)
+    error_message = "The port1_type must be either 'DHCP' or 'Static'."
+  }
+}
+
+variable "port1_ip" {
+  description = "Port1 static IP address (0.0.0.0 for DHCP)"
+  type        = string
+  default     = "0.0.0.0"
+}
+
+variable "port1_subnet" {
+  description = "Port1 subnet mask in CIDR format (e.g., 24 for /24)"
+  type        = number
+  default     = 0
+  validation {
+    condition     = var.port1_subnet >= 0 && var.port1_subnet <= 32
+    error_message = "The port1_subnet must be between 0 and 32."
+  }
+}
+
+variable "port1_gateway" {
+  description = "Port1 gateway IP address (0.0.0.0 for none)"
+  type        = string
+  default     = "0.0.0.0"
+}
+
+variable "port1_dns1" {
+  description = "Port1 primary DNS server (0.0.0.0 for none)"
+  type        = string
+  default     = "0.0.0.0"
+}
+
+variable "port1_dns2" {
+  description = "Port1 secondary DNS server (0.0.0.0 for none)"
+  type        = string
+  default     = "0.0.0.0"
+}
+
+############################
+#  Port 2 Configuration    #
+############################
+variable "port2_type" {
+  description = "Port2 configuration type (DHCP or Static) - only for 2-NIC deployments"
+  type        = string
+  default     = "DHCP"
+  validation {
+    condition     = contains(["DHCP", "Static"], var.port2_type)
+    error_message = "The port2_type must be either 'DHCP' or 'Static'."
+  }
+}
+
+variable "port2_ip" {
+  description = "Port2 static IP address (0.0.0.0 for DHCP)"
+  type        = string
+  default     = "0.0.0.0"
+}
+
+variable "port2_subnet" {
+  description = "Port2 subnet mask in CIDR format (e.g., 24 for /24)"
+  type        = number
+  default     = 0
+  validation {
+    condition     = var.port2_subnet >= 0 && var.port2_subnet <= 32
+    error_message = "The port2_subnet must be between 0 and 32."
+  }
+}
+
+variable "port2_gateway" {
+  description = "Port2 gateway IP address (0.0.0.0 for none)"
+  type        = string
+  default     = "0.0.0.0"
+}
+
+variable "port2_dns1" {
+  description = "Port2 primary DNS server (0.0.0.0 for none)"
+  type        = string
+  default     = "0.0.0.0"
+}
+
+variable "port2_dns2" {
+  description = "Port2 secondary DNS server (0.0.0.0 for none)"
+  type        = string
+  default     = "0.0.0.0"
+}
+
+############################
+#  ZTNA License            #
+############################
+variable "license_key" {
+  description = "ZTNA Connector license key"
+  type        = string
+  sensitive   = true
+}
+
+variable "license_secret" {
+  description = "ZTNA Connector license secret"
+  type        = string
+  sensitive   = true
+}
+
+############################
+#  Advanced Configuration  #
+############################
+variable "host1_name" {
+  description = "Static host entry 1 name"
+  type        = string
+  default     = "controller.cgnx.net"
+}
+
+variable "host1_ip" {
+  description = "Static host entry 1 IP (0.0.0.0 for none)"
+  type        = string
+  default     = "0.0.0.0"
+}
+
+variable "host2_name" {
+  description = "Static host entry 2 name"
+  type        = string
+  default     = "vmfg.cgnx.net"
+}
+
+variable "host2_ip" {
+  description = "Static host entry 2 IP (0.0.0.0 for none)"
+  type        = string
+  default     = "0.0.0.0"
+}
+
+variable "host3_name" {
+  description = "Static host entry 3 name"
+  type        = string
+  default     = "locator.cgnx.net"
+}
+
+variable "host3_ip" {
+  description = "Static host entry 3 IP (0.0.0.0 for none)"
+  type        = string
+  default     = "0.0.0.0"
+}
+
+############################
+#  Tags and Metadata       #
+############################
+variable "tags" {
+  description = "Tags to apply to the VM"
+  type        = list(string)
+  default     = ["ztna-connector"]
+}
+
+variable "custom_attributes" {
+  description = "Custom attributes for the VM"
+  type        = map(string)
+  default     = {}
+}
+
+variable "annotation" {
+  description = "VM annotation/notes"
+  type        = string
+  default     = "ZTNA Connector ION 200v"
+}
